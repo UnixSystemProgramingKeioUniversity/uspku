@@ -19,8 +19,9 @@ void parseline(char *cmdline, char **av){
   delim = strchr(buf, ' ');
 
   while(delim){
+    *delim = '\0';
     av[argc++] = buf;
-    *delim = '\0'; // I don't know why we need this
+    //*delim = '\0'; // I don't know why we need this
     buf = delim + 1;
     while(*buf && (*buf == ' ')){
       buf++;
