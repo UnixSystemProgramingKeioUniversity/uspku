@@ -32,8 +32,8 @@ buf *getblk(int blknum){
 	//sleep();
 	printf("SCENARIO 4\n");
 	printf("Process goes to sleep\n");
-	brelse(buffer);
-	continue;
+	return buffer;
+	//continue;
       }
       //RemFromFreeList(buffer);
       //RemoveFromFree()
@@ -45,7 +45,7 @@ buf *getblk(int blknum){
 	buf *next = ref -> free_fp;
 	prev -> free_fp = next;
 	next -> free_bp = prev;
-	MakeStatus(ref, STAT_LOCKED | STAT_VALID | STAT_DWR | STAT_OLD);
+	MakeStatus(ref, STAT_LOCKED | STAT_VALID | STAT_KRDWR | STAT_OLD);
 	continue;
       }
       //scenario 2
@@ -68,24 +68,29 @@ buf *getblk(int blknum){
 
 void brelse(buf *buffer){
   //wakeup();
-  printf("Wakeup processes wating for any buffer\n");
-  if(CheckStatus(buffer, STAT_LOCKED | STAT_VALID | STAT_WAITED)){
-    //wakeup();
-    printf("Wakeup processes waiting for buffer of blkno %d\n", buffer -> blkno);
-  }
-  //raise_cpu_level();
-  if(CheckStatus(buffer, STAT_VALID) & !CheckStatus(buffer, STAT_OLD)){
-    insert_list(&f_head, buffer, FREETAIL);
-    MakeStatus(buffer, STAT_VALID);
+  if(CheckStatus(buffer, STAT_LOCKED)){
+    printf("Wakeup processes wating for any buffer\n");
+    if(CheckStatus(buffer, STAT_LOCKED | STAT_VALID | STAT_WAITED)){
+      //wakeup();
+      printf("Wakeup processes waiting for buffer of blkno %d\n", buffer -> blkno);
+    }
+    //raise_cpu_level();
+    if(CheckStatus(buffer, STAT_VALID) && !CheckStatus(buffer, STAT_OLD)){
+      printf("Enqueued to the tail of free list\n");
+      insert_list(&f_head, buffer, FREETAIL);
+      MakeStatus(buffer, STAT_VALID);
+    }
+    else{
+      printf("Enqueued to the head of free list\n");
+      insert_list(&f_head, buffer, FREEHEAD);
+      MakeStatus(buffer, STAT_VALID);
+    }
+    //lower_cpu_level();
   }
   else{
-    insert_list(&f_head, buffer, FREEHEAD);
-    MakeStatus(buffer, STAT_VALID);
- }
-
-  //lower_cpu_level();
+    printf("Error! buffer should be locked\n");
+  }
 }
-
 
 // based on the blkno, search the hash key, and 
 // if there exist the value in the hash list, return 

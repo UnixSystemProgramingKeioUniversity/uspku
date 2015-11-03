@@ -55,7 +55,6 @@ struct command_table cmd_tbl[] =
 
 //61101233
 //Takashi Ikeuchi
-//I am Takashi Ikeuchi, bitch!
 int main(int argc, char *argv[]){
   char cmdline[100];
   while(setbit){
@@ -80,6 +79,7 @@ int main(int argc, char *argv[]){
     }
     if(p -> cmd == NULL){
       fprintf(stderr, "unknown cmmand: %s\n", av[0]);
+      free(av[0]);
     }
   }
 }
@@ -330,8 +330,13 @@ void brelse_proc(int ac, char *av[]){
     }
     if(!checker){
       int t = atoi(av[1]);
-      buf *p = Clone(t);
-      brelse(p);
+      if(Search(t)){
+	buf *p = Clone(t);
+	brelse(p);
+      }
+      else{
+	printf("Error!, there is no such block num in the hash\n");
+      }
     }
     else{
       printf("Error!, you should not include any alphabet in your input\n");

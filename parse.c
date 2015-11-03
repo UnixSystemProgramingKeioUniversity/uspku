@@ -11,7 +11,7 @@ int parseline(char *cmdline, char **av){
   int argc = 0;
   strcpy(buffer, cmdline);
   buffer[strlen(buffer) - 1] = ' ';
-  while(*buffer && (*buffer == ' ')){ 
+  while(*buffer && ((*buffer == ' '))){ 
     buffer++;
   }
   argc = 0;
